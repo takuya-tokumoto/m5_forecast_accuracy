@@ -1,8 +1,12 @@
 import pandas as pd
 
 target = [
-    'train',
-    'test',
+    'calendar',
+    'sales_train_evaluation',
+    'sales_train_validation',
+    'sample_submission',
+    'sell_prices'
+    
 ]
 
 extension = 'csv'
