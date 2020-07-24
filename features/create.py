@@ -14,7 +14,7 @@ startDay = 0
 TrTestWin = 56
 
 
-class Pclass(Feature):
+class sales_train_validation(Feature):
     def create_table(self):
         sales_train_validation_T = sales_train_validation.T
         self.sales_train_validation = sales_train_validation_T[6 + startDay:]
