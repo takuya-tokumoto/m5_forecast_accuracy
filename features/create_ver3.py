@@ -20,7 +20,7 @@ def create_pre_sale_val(sales_train_validation):
     dt = dt.T
     pd_SelesTrain = dt[6 + startDay:]
     
-    pd_SelesTrain = pd_SelesTrain.reset_index()
+    pd_SelesTrain = pd_SelesTrain.reset_index(drop = True)
     
     return pd_SelesTrain
 
@@ -88,6 +88,7 @@ def create_calendar_event(calendar):
 def create_wday(calendar):
     print("prepare wday info")
     
+    calendar = calendar["wday"]
     wday_info = pd.get_dummies(calendar["wday"].astype("category"), prefix='wday_', drop_first = True)
     
     return wday_info
@@ -96,6 +97,8 @@ def create_wday(calendar):
 @cached_feature("month_info", INPUT_DIR)
 def create_month_info(calendar):
     print("prepare month info")
+    
+    calendar = calendar["date"]
     
     calendar["date"]  = calendar["date"].astype('datetime64[ns]')
     calendar["month"] = calendar["date"].dt.month
@@ -109,6 +112,8 @@ def create_month_info(calendar):
 def create_day_info(calendar):
     print("prepare day info")
     
+    calendar = calendar["date"]
+    
     calendar["date"] = calendar["date"].astype('datetime64[ns]')
     calendar["day"]   = calendar["date"].dt.day
     
@@ -120,8 +125,8 @@ def create_day_info(calendar):
 if __name__ == "__main__":
     ROOT_DIR = ""
     INPUT_DIR = ROOT_DIR + "data/input/"
-    sales_train_validation = pd.read_csv(INPUT_DIR + "sales_train_validation.csv")
-    calendar = pd.read_csv(INPUT_DIR + "calendar.csv")
+    sales_train_validation = pd.read_feather(INPUT_DIR + "sales_train_validation.feather")
+    calendar = pd.read_feather(INPUT_DIR + "calendar.feather")
 
     create_pre_sale_val(sales_train_validation)
     create_calendar_event(calendar)

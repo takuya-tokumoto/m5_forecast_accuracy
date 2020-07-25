@@ -1,11 +1,9 @@
 {
     "features": [
-        "age",
-        "embarked",
-        "family_size",
-        "fare",
-        "pclass",
-        "sex"
+        "former_agg_event",
+        "month_info",
+        "day_info",
+        "wday_info"
     ],
     "lgbm_params": {
         "learning_rate": 0.1,

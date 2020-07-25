@@ -2,19 +2,17 @@ import pandas as pd
 import feather
 
 def load_datasets(feats):
-#     dfs = [pd.read_feather(f'features/{f}_train.feather') for f in feats]
-    dfs = [feather.read_dataframe(f'features/{f}_train.feather') for f in feats]
+    dfs = [pd.read_feather(f'./data/input/{f}.f') for f in feats]
+    feats_mart = pd.concat(dfs, axis=1, sort=False)
+    
+    feats_train = feats_mart[:1913]
+    feats_test  = feats_mart[1913:1941]
+    
+    return feats_train, feats_test
 
-    X_train = pd.concat(dfs, axis=1, sort=False)
-#     dfs = [pd.read_feather(f'features/{f}_test.feather') for f in feats]
-    dfs = [feather.read_dataframe(f'features/{f}_test.feather') for f in feats]
-    X_test = pd.concat(dfs, axis=1, sort=False)
-    return X_train, X_test
 
-
-def load_target(target_name):
-    train = pd.read_csv('./data/input/train.csv')
-    y_train = train[target_name]
+def load_target():
+    y_train = pd.read_feather('./data/input/pre_sale_val.f')
     return y_train
 
 def downcast_dtypes(df):
