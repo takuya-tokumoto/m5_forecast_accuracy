@@ -1,18 +1,20 @@
 import pandas as pd
+import numpy as np
 import datetime
+import time
 import logging
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import MinMaxScaler
 import argparse
 import json
-import numpy as np
 
 from utils import load_datasets, load_target
 from logs.logger import log_best
 from models.lgbm import train_and_predict
 
 
-timesteps = 20
+
+timesteps = 7
 startDay = 0
 TrTestWin = 56
 
@@ -91,7 +93,8 @@ regressor.add(Dense(units = 30490))
 regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
 
 # Fitting the RNN to the Training set
-epoch_no=32
+# epoch_no=32
+epoch_no=3
 batch_size_RNN=44
 regressor.fit(X_Train, y_Train, epochs = epoch_no, batch_size = batch_size_RNN)
 
@@ -99,21 +102,18 @@ regressor.fit(X_Train, y_Train, epochs = epoch_no, batch_size = batch_size_RNN)
 inputs = lr_Train[-timesteps:]
 inputs = sc.transform(inputs)
 
-FeatureTest = pd.concat([daysBeforeEventTest, DateFlagTest], axis = 1)
-
 
 X_Test = []
 X_Test.append(inputs[0:timesteps])
 X_Test = np.array(X_Test)
 predictions = []
 
-# for j in range(timesteps,timesteps + 28):  # range(14,42)
 for j in range(timesteps,timesteps + 28):  # range(14,42)
 #X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
     predicted_stock_price = regressor.predict(X_Test[0,j - timesteps:j].reshape(1, timesteps, X_Train.shape[2]))
 #   .reshape(1, timesteps, ~)) ~はX_trainの行と一致させること。特徴量増やしたら変更必要。
     
-    testInput = np.column_stack((np.array(predicted_stock_price), np.array(FeatureTest)[j - timesteps].reshape(1, X_Train.shape[2] - 30490))) #特徴量変更後注意
+    testInput = np.column_stack((np.array(predicted_stock_price), np.array(feats_test)[j - timesteps].reshape(1, X_Train.shape[2] - 30490))) #特徴量変更後注意
 #   j = 14の場合、..(X_test[0,0:14].reshape(1, 14, 30494)) j = 15の場合、..(X_test[0,1:15].reshape(1, 14, 30494)) 
 #   testInput = np.column_stack((np.array(testInput), pd.get_dummies(DateFlagTest[category_col].astype("category"), drop_first = True)[1913 + j - timesteps]))
     
@@ -122,3 +122,27 @@ for j in range(timesteps,timesteps + 28):  # range(14,42)
     
     predicted_stock_price = sc.inverse_transform(testInput)[:,0:30490] # 正規化していたのを戻している
     predictions.append(predicted_stock_price)
+    
+
+
+submission = pd.DataFrame(data=np.array(predictions).reshape(28,30490))
+submission = submission.T
+submission = pd.concat((submission, submission), ignore_index=True)
+
+sample_submission = pd.read_csv("data/input/sample_submission.csv")
+    
+idColumn = sample_submission[["id"]]
+    
+submission[["id"]] = idColumn  
+
+cols = list(submission.columns)
+cols = cols[-1:] + cols[:-1]
+submission = submission[cols]
+
+colsdeneme = ["id"] + [f"F{i}" for i in range (1,29)]
+
+submission.columns = colsdeneme
+
+currentDateTime = time.strftime("%d%m%Y_%H%M%S")
+
+submission.to_csv("./data/output/submission.csv", index=False)
