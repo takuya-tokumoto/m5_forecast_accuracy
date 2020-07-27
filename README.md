@@ -17,7 +17,7 @@ python scripts/convert_to_feather.py
 python features/create_ver3.py
 ```
 
-## Run LightGBM
+## Run LSTM
 
 ```
 python run.py
