@@ -1,4 +1,4 @@
-ml-competition-template-titanic
+ml-competition-m5-forecast-accuracy
 ===
 - [M5 Forecasting - Accuracy](https://www.kaggle.com/c/m5-forecasting-accuracy) 
 
